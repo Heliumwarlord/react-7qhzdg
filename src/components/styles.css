@@ -1,0 +1,95 @@
+/* General Styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.custom-header {
+  font-size: 2rem;
+  color: #1a202c;
+}
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  background-color: #f9fafb; /* Tailwind's bg-gray-50 */
+  color: #1a202c; /* Tailwind's text-gray-800 */
+}
+
+/* Header Styles */
+.header {
+  background-color: #ffffff; /* Tailwind's bg-white */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Tailwind's shadow-md */
+  padding: 1.5rem; /* Tailwind's p-6 */
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 2.25rem; /* Tailwind's text-4xl */
+  font-weight: 700; /* Tailwind's font-bold */
+  color: #1a202c; /* Tailwind's text-gray-800 */
+}
+
+.header p {
+  margin-top: 0.5rem; /* Tailwind's mt-2 */
+  color: #4a5568; /* Tailwind's text-gray-600 */
+}
+
+/* Gallery Styles */
+.gallery-container {
+  max-width: 1200px; /* Tailwind's container */
+  margin: 0 auto; /* Tailwind's mx-auto */
+  padding: 1.5rem; /* Tailwind's p-6 */
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr); /* Tailwind's grid-cols-1 */
+  gap: 1.5rem; /* Tailwind's gap-6 */
+}
+
+@media (min-width: 640px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr); /* Tailwind's sm:grid-cols-2 */
+  }
+}
+
+@media (min-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: repeat(3, 1fr); /* Tailwind's md:grid-cols-3 */
+  }
+}
+
+@media (min-width: 1024px) {
+  .gallery-grid {
+    grid-template-columns: repeat(4, 1fr); /* Tailwind's lg:grid-cols-4 */
+  }
+}
+
+.gallery-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem; /* Tailwind's rounded-lg */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Tailwind's shadow-lg */
+  transition: box-shadow 0.3s ease; /* Tailwind's transition-shadow duration-300 */
+}
+
+.gallery-item:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Tailwind's hover:shadow-xl */
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Tailwind's object-cover */
+}
+
+/* Footer Styles */
+.footer {
+  background-color: #2d3748; /* Tailwind's bg-gray-800 */
+  color: #ffffff; /* Tailwind's text-white */
+  text-align: center;
+  padding: 1rem; /* Tailwind's p-4 */
+  margin-top: 2rem; /* Tailwind's mt-8 */
+}
