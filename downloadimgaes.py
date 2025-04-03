@@ -1,83 +1,69 @@
+  
 import os
-import time
 import requests
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-from urllib.parse import urljoin
 
-# Ensure the public/images folder exists
-image_dir = os.path.join("public", "images")
-os.makedirs(image_dir, exist_ok=True)
+# Create folder if it doesn't exist
+def create_folder(folder_name):
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
 
-# Function to download an image
-def download_image(url, filename):
+# Download image function
+def download_image(url, folder_name):
     try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-            "Referer": "https://www.idlebrain.com/",
-            "Accept": "image/webp,image/apng,image/*,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.9",
-        }
-        response = requests.get(url, headers=headers, stream=True)
+        response = requests.get(url, stream=True)
         if response.status_code == 200:
+            filename = os.path.join(folder_name, url.split("/")[-1])
             with open(filename, "wb") as file:
-                for chunk in response.iter_content(chunk_size=8192):
+                for chunk in response.iter_content(1024):
                     file.write(chunk)
-            print(f"Downloaded: {filename}")
+            print(f"Downloaded: {url}")
         else:
-            print(f"Failed to download {url}: Status code {response.status_code}")
+            print(f"Failed to download {url}: {response.status_code}")
     except Exception as e:
         print(f"Error downloading {url}: {e}")
 
-# Function to fetch and download all images
-def fetch_and_download_images():
-    base_url = "https://www.idlebrain.com/movie/photogallery/nayanatara15/images/"
+# Main scraping function
+def scrape_images(base_url, start_page=1, end_page=250, max_images=100):
+    availability_map = {}  # To store available/unavailable pages
 
-    # Set up Selenium with Chrome
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run in headless mode
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+    for page_number in range(start_page, end_page + 1):
+        folder_name = f"images/page_{page_number}"
+        create_folder(folder_name)
 
-    # Use webdriver_manager to automatically download and manage the ChromeDriver
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+        print(f"Scraping page {page_number}...")
+        page_available = False
 
-    try:
-        # Open the target URL
-        driver.get(base_url)
-        time.sleep(5)  # Wait for the page to load completely
+        for image_number in range(1, max_images + 1):
+            # Format the URL with the page and image numbers
+            image_url = base_url.format(page_number, image_number)
 
-        # Get the page source after JavaScript rendering
-        page_source = driver.page_source
+            try:
+                response = requests.head(image_url)  # Use HEAD to check if the image exists
+                if response.status_code == 200:
+                    page_available = True
+                    download_image(image_url, folder_name)
+                elif response.status_code == 404:
+                    print(f"Image not found: {image_url}")
+                    break  # Stop trying for this page if an image is missing
+                else:
+                    print(f"Unexpected status for {image_url}: {response.status_code}")
+            except Exception as e:
+                print(f"Error checking {image_url}: {e}")
 
-        # Parse the page source with BeautifulSoup
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(page_source, "html.parser")
+        # Record page availability in the map
+        availability_map[page_number] = "Available" if page_available else "Not Available"
 
-        # Find all image tags
-        image_tags = soup.find_all("img")
+        if not page_available:
+            print(f"No images found for page {page_number}. Moving to the next page.")
 
-        # Download each image
-        for i, img in enumerate(image_tags):
-            src = img.get("src")
-            if src and "nayanatara" in src:
-                # Convert relative URLs to absolute URLs
-                image_url = urljoin(base_url, src)
-                filename = os.path.join(image_dir, f"nayanatara{i + 1}.jpg")
-                download_image(image_url, filename)
+    # Save the availability map to a file
+    with open("availability_map.txt", "w") as file:
+        for page, status in availability_map.items():
+            file.write(f"Page {page}: {status}\n")
 
-        print("All images downloaded successfully!")
-    except Exception as e:
-        print(f"Error fetching or downloading images: {e}")
-    finally:
-        # Close the browser
-        driver.quit()
+    print("Scraping complete. Availability map saved to 'availability_map.txt'.")
 
-# Run the script
-if __name__ == "__main__":
-    fetch_and_download_images()
+# Example usage
+base_url = "https://www.idlebrain.com/movie/photogallery/nayanatara47/images/nayanatara{}.jpg"
+# https://www.idlebrain.com/movie/photogallery/samantha130/images/samantha37.jpg
+scrape_images(base_url, start_page=1, end_page=250, max_images=100)
