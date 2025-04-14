@@ -1,9 +1,12 @@
-/* General Styles */
-/* stylelint-disable */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-/* stylelint-enable */
+@import "tailwindcss";
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import "tailwindcss/typography";
+@import "tailwindcss/forms";
+@import "tailwindcss/aspect-ratio";
+@import "tailwindcss/line-clamp";
+
 .custom-header {
   font-size: 2rem;
   color: #1a202c;
