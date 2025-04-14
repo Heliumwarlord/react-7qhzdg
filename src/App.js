@@ -4,7 +4,7 @@ import Mugiwara from './components/Mugiwara';
 const App = () => {
   return (
     <div>
-      <Mugiwara />
+      Hello
     </div>
   );
 };
